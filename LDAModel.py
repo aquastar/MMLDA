@@ -5,6 +5,8 @@ import LoadData
 import Preprocess
 import os
 
+from sample import UniSample, MultSample
+
 
 class LDAModel:
     alpha = float
@@ -76,7 +78,7 @@ class LDAModel:
             row = ListUtil.Initial(DocSize)
             self.Z.append(row)
             for w in xrange(DocSize):
-                topic = self.UniSample(self.K)
+                topic = UniSample(self.K)
                 wid = self.IDListSet[d][w]
                 self.Z[d][w] = topic
                 self.nw[wid][topic] += 1
@@ -94,7 +96,7 @@ class LDAModel:
 
         p = self.ComputeTransProb(d, w)
 
-        newtopic = self.MultSample(p)
+        newtopic = MultSample(p)
         self.nw[wid][newtopic] += 1
         self.nd[d][newtopic] += 1
         self.nwsum[newtopic] += 1
@@ -111,21 +113,6 @@ class LDAModel:
                 float(self.nd[d][k]) + self.alpha) / (float(self.ndsum[d]) + Kalpha)
             return p
 
-    def UniSample(self, K):
-        return random.randint(0, K - 1)
-
-    def MultSample(self, ProbList):
-        size = len(ProbList)
-        for i in xrange(1, size):
-            ProbList[i] += ProbList[i - 1]
-        u = random.random()
-        res = 0
-        for k in xrange(size):
-            if ProbList[k] >= u * ProbList[size - 1]:
-                res = k
-                break
-        return res
-
     def ComputTheta(self):
         for d in xrange(self.D):
             for k in xrange(self.K):
@@ -135,6 +122,9 @@ class LDAModel:
         for k in xrange(self.K):
             for w in xrange(self.W):
                 self.phi[k][w] = (self.nw[w][k] + self.beta) / (self.nwsum[k] + self.W * self.beta)
+
+    def SaveTempRes(self, prefix):
+        pass
 
     def estimate(self):
         for i in xrange(1, self.NumberOfIterations + 1):
