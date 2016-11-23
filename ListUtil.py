@@ -1,5 +1,7 @@
 import string
 
+import sys
+
 
 def Normalize(list, smoother=0.0):
     sum = Sum(list)
@@ -73,3 +75,8 @@ def AssignList(LL):
 def FindMax(LL):
     LL.sort()
     return LL[len(LL) - 1]
+
+def refresh_output(data):
+    to_print = ' '.join([str(x) for x in data]) if isinstance(data, list) else data
+    sys.stdout.write('%s\r' % to_print)
+    sys.stdout.flush()

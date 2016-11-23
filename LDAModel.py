@@ -1,11 +1,11 @@
+from collections import OrderedDict
+
 import ListUtil
 import LoadData
 import Preprocess
-import logging
-import logging.config
 import os
-from Sample import UniSample, MultSample
 
+from Sample import UniSample, MultSample
 
 
 class LDAModel:
@@ -14,6 +14,7 @@ class LDAModel:
     D = int
     K = int
     W = int
+    Top_Words_Num = int
     NumberOfIterations = int
     SaveStep = int
 
@@ -28,13 +29,14 @@ class LDAModel:
     theta = object
     phi = object
 
-    def __init__(self, alpha, beta, NumberOfIterations, SaveStep, K):
+    def __init__(self, alpha, beta, NumberOfIterations, SaveStep, K, TopNum):
         self.alpha = alpha
         self.beta = beta
         self.NumberOfIterations = NumberOfIterations
         self.SaveStep = SaveStep
         self.K = K
         self.nwsum = ListUtil.Initial(self.K)
+        self.Top_Words_Num = TopNum
 
     def ModelInit(self, filename):
         Docs = LoadData.LoadDataFromFile(os.getcwd() + "/" + filename)
@@ -124,13 +126,21 @@ class LDAModel:
                 self.phi[k][w] = (self.nw[w][k] + self.beta) / (self.nwsum[k] + self.W * self.beta)
 
     def SaveTempRes(self, prefix):
-        pass
+        print 'current iteration result:', prefix
+        for x in xrange(self.K):
+            print 'topic K:',
+            twords = []
+            twords = [(n, self.phi[x][n]) for n in xrange(self.W)]
+            twords.sort(key=lambda i: i[1], reverse=True)
+            for y in xrange(self.Top_Words_Num):
+                word = self.Dictionary[twords[0]]
+                print  word, str(twords[y][1])
 
     def estimate(self):
         for i in xrange(1, self.NumberOfIterations + 1):
             for d in xrange(self.D):
                 for w in xrange(len(self.IDListSet[d])):
-                    print 'iteration:', i, 'document:', d, 'word:', w
+                    ListUtil.refresh_output(['iteration:', i, 'document:', d, 'word:', w])
                     newtopic = self.sampling(d, w)
                     self.Z[d][w] = newtopic
             if i % self.SaveStep == 0:
