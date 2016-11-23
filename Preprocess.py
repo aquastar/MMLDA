@@ -38,8 +38,11 @@ def ConstructDictionary(WordListSet):
 
 def Word2Id(WordList, Dictionary):
     IDList = []
+    a = 0
+    b = 0
     for word in WordList:
-        print random.random()
-        if word in Dictionary.values():
-            IDList.append(k)
+        for k, v in Dictionary.items():
+            print a, b
+            if v == word:
+                IDList.append(k)
     return IDList
