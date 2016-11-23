@@ -48,7 +48,7 @@ class LDAModel:
         print "Done!!"
         print "Begin to map the word to ID"
         self.IDListSet = []
-        inv_dict = {v: k for k, v in self.Dictionary}
+        inv_dict = {v: k for k, v in self.Dictionary.iteritems()}
         for wdl in WordListSet:
             IdList = Preprocess.Word2Id(wdl, inv_dict)
             self.IDListSet.append(IdList)
