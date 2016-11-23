@@ -111,10 +111,10 @@ class LDAModel:
                 float(self.nd[d][k]) + self.alpha) / (float(self.ndsum[d]) + Kalpha)
             return p
 
-    def UniSample(K):
-        return random.randInt(0, K - 1)
+    def UniSample(self, K):
+        return random.randint(0, K - 1)
 
-    def MultSample(ProbList):
+    def MultSample(self, ProbList):
         size = len(ProbList)
         for i in xrange(1, size):
             ProbList[i] += ProbList[i - 1]
