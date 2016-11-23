@@ -6,8 +6,7 @@ import logging.config
 import os
 from Sample import UniSample, MultSample
 
-logging.config.fileConfig("logging.conf")
-logger = logging.getLogger()
+
 
 class LDAModel:
     alpha = float
