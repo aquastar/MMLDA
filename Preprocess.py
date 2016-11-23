@@ -40,7 +40,6 @@ def Word2Id(WordList, Dictionary):
     IDList = []
     for word in WordList:
         print random.random()
-        for k, v in Dictionary.items():
-            if v == word:
-                IDList.append(k)
+        if word in Dictionary.values():
+            IDList.append(k)
     return IDList
