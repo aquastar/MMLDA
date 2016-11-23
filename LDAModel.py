@@ -5,7 +5,7 @@ import LoadData
 import Preprocess
 import os
 
-from sample import UniSample, MultSample
+from Sample import UniSample, MultSample
 
 
 class LDAModel:
@@ -130,6 +130,7 @@ class LDAModel:
         for i in xrange(1, self.NumberOfIterations + 1):
             for d in xrange(self.D):
                 for w in xrange(len(self.IDListSet[d])):
+                    print 'iteration:', i, 'document:', d, 'word:', w
                     newtopic = self.sampling(d, w)
                     self.Z[d][w] = newtopic
             if i % self.SaveStep == 0:
