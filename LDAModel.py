@@ -128,13 +128,13 @@ class LDAModel:
     def SaveTempRes(self, prefix):
         print 'current iteration result:', prefix
         for x in xrange(self.K):
-            print 'topic K:',
+            print 'topic K:', x
             twords = []
             twords = [(n, self.phi[x][n]) for n in xrange(self.W)]
             twords.sort(key=lambda i: i[1], reverse=True)
             for y in xrange(self.Top_Words_Num):
-                word = self.Dictionary[twords[0]]
-                print  word, str(twords[y][1])
+                word = self.Dictionary[twords[y][0]]
+                print  word,
 
     def estimate(self):
         for i in xrange(1, self.NumberOfIterations + 1):
