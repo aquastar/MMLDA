@@ -133,7 +133,7 @@ class LDAModel:
             twords.sort(key=lambda i: i[1], reverse=True)
             for y in xrange(self.Top_Words_Num):
                 word = self.Dictionary[twords[y][0]]
-                print  word,
+                print  word, twords[y][1]
             print '----'
 
     def estimate(self):
