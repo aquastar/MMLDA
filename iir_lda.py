@@ -147,7 +147,7 @@ def main():
 
     # import cProfile
     # cProfile.runctx('lda_learning(lda, options.iteration, voca)', globals(), locals(), 'lda.profile')
-    output_word_topic_dist(lda, voca)
+    # output_word_topic_dist(lda, voca)
     lda_learning(lda, options.iteration, voca)
 
 
