@@ -5,6 +5,8 @@
 # (c)2010-2011 Nakatani Shuyo / Cybozu Labs Inc.
 
 import nltk, re
+from nltk.corpus import brown as corpus
+import cPickle as pk
 
 
 def load_corpus(range):
@@ -12,17 +14,12 @@ def load_corpus(range):
     if m:
         start = int(m.group(1))
         end = int(m.group(2))
-        from nltk.corpus import brown as corpus
         return [corpus.words(fileid) for fileid in corpus.fileids()[start:end]]
 
 
 def load_file(filename):
-    corpus = []
-    f = open(filename, 'r')
-    for line in f:
-        doc = re.findall(r'\w+(?:\'\w+)?', line)
-        if len(doc) > 0:
-            corpus.append(doc)
+    f = open(filename, 'rb')
+    corpus = pk.load(f)
     f.close()
     return corpus
 

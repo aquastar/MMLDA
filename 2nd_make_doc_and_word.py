@@ -12,8 +12,8 @@ img_feats = pk.load(open('pic_dict.pk', 'rb'))
 complete_document = []
 for img_prefix, tags in img_tag_pair.iteritems():
     print img_prefix, tags
-    actual_document = []
     for t in tags:
+        actual_document = []
         actual_document.append(tag_name_w2v[t])
         actual_document.append(img_feats['./mirflickr/im%s.jpg' % (img_prefix)])
 

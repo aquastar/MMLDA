@@ -11,6 +11,7 @@ training_tuple = []
 training_size = 128
 training_pic_name = []
 
+
 def batch_vgg(training_tuple):
     batch = np.concatenate(tuple(training_tuple), 0)
     tf.reset_default_graph()
@@ -26,6 +27,7 @@ def batch_vgg(training_tuple):
     print 'assign prob'
     for x, y in zip(training_pic_name, prob):
         pic_dict[x] = y
+
 
 for fid, f in enumerate(file_list):
     print 'reshaping', fid, f
@@ -58,7 +60,7 @@ if training_tuple:
     batch = np.concatenate(tuple(training_tuple), 0)
     tf.reset_default_graph()
     with tf.Session() as sess:
-        images = tf.placeholder("float", [training_size, 224, 224, 3])
+        images = tf.placeholder("float", [len(training_tuple), 224, 224, 3])
         feed_dict = {images: batch}
 
         vgg = vgg16.Vgg16()
@@ -69,6 +71,5 @@ if training_tuple:
     print 'assign prob'
     for x, y in zip(training_pic_name, prob):
         pic_dict[x] = y
-
 
 pk.dump(pic_dict, open('pic_dict.pk', 'wb'))

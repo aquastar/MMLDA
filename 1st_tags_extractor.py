@@ -25,4 +25,4 @@ model = w.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True
 for t in tag_name_pool:
     tag_name_w2v[t] = model[t]
 
-pk.dump(pic_tags, open('w2v_tags.pk', 'wb'))
+pk.dump(tag_name_w2v, open('w2v_tags.pk', 'wb'))
