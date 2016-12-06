@@ -7,6 +7,8 @@
 
 import numpy
 import sys
+from operator import add
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def refresh_output(data):
@@ -144,6 +146,7 @@ def lda_learning(lda, iteration, voca=None):
     print 'topic training'
     for i in range(iteration):
         refresh_output(['training', i])
+        print 'training', i
         lda.inference()
         # perp = lda.perplexity()
         # print ("-%d p=%f" % (i + 1, perp))
@@ -158,22 +161,32 @@ def lda_learning(lda, iteration, voca=None):
     output_word_topic_dist(lda, voca)
 
 
-def output_word_topic_dist(lda, voca):
-    zcount = numpy.zeros(lda.K, dtype=int)
-    wordcount = [dict() for k in range(lda.K)]
-    for xlist, zlist in zip(lda.docs, lda.z_m_n):
-        for x, z in zip(xlist, zlist):
-            zcount[z] += 1
-            if x in wordcount[z]:
-                wordcount[z][x] += 1
-            else:
-                wordcount[z][x] = 1
+def output_word_topic_dist(lda, top_N=3):
+    for k in lda.zw_m_n:
+        top_words = [''] * top_N
+        top_words_sim = [.0] * top_N
+        for m in lda.docs:
+            sim = cosine_similarity([k, m])[0][1]
+            if sim > min(top_words_sim):
+                index_to_replace = numpy.array(top_words_sim).argmin()
+                top_words[index_to_replace] = m  # should be replace with actual word
+                top_words_sim[index_to_replace] = sim
+        print top_words, top_words
+
+    for k in lda.zi_m_n:
+        top_words = [''] * top_N
+        top_words_sim = [.0] * top_N
+        for m in lda.docs:
+            sim = cosine_similarity([k, m])[0][1]
+            if sim > min(top_words_sim):
+                index_to_replace = numpy.array(top_words_sim).argmin()
+                top_words[index_to_replace] = m  # should be replace with actual word
+                top_words_sim[index_to_replace] = sim
+        print top_words, top_words
+
 
     phi = lda.worddist()
-    for k in range(lda.K):
-        print ("\n-- topic: %d (%d words)" % (k, zcount[k]))
-        for w in numpy.argsort(-phi[k])[:20]:
-            print ("%s: %f (%d)" % (voca[w], phi[k, w], wordcount[k].get(w, 0)))
+
 
 
 def main():
@@ -187,7 +200,7 @@ def main():
     parser.add_option("-k", dest="K", type="int", help="number of topics", default=20)
     parser.add_option("-i", dest="iteration", type="int", help="iteration count", default=10)
     parser.add_option("-s", dest="smartinit", action="store_true", help="smart initialize of parameters", default=False)
-    parser.add_option("--stopwords", dest="stopwords", help="exclude okoijkoijoijojjiostop words", action="store_true",
+    parser.add_option("--stopwords", dest="stopwords", help="exclude stop words", action="store_true",
                       default=False)
     parser.add_option("--seed", dest="seed", type="int", help="random seed")
     parser.add_option("--df", dest="df", type="int", help="threshold of document freaquency to cut words", default=0)
