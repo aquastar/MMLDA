@@ -8,6 +8,7 @@
 import numpy
 import sys
 from operator import add
+import cPickle as pk
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -15,6 +16,13 @@ def refresh_output(data):
     to_print = ' '.join([str(x) for x in data]) if isinstance(data, list) else data
     sys.stdout.write('%s\r' % to_print)
     sys.stdout.flush()
+
+
+def normalize(x):
+    max_x = max(x)
+    min_x = min(x)
+    delta = max_x - min_x
+    return [(xx - min_x) / delta for xx in x]
 
 
 class LDA:
@@ -162,30 +170,30 @@ def lda_learning(lda, iteration, voca=None):
 
 
 def output_word_topic_dist(lda, top_N=3):
-    for k in lda.zw_m_n:
+    # find the closest word using the distribution
+    tag_name_w2v = pk.load(open('w2v_tags.pk', 'rb'))
+    for x in lda.zw_m_n:
         top_words = [''] * top_N
         top_words_sim = [.0] * top_N
-        for m in lda.docs:
-            sim = cosine_similarity([k, m])[0][1]
+        for t, vec in tag_name_w2v.iteritem():
+            sim = cosine_similarity([normalize(x), normalize(vec)])[0][1]
             if sim > min(top_words_sim):
                 index_to_replace = numpy.array(top_words_sim).argmin()
-                top_words[index_to_replace] = m  # should be replace with actual word
+                top_words[index_to_replace] = t
                 top_words_sim[index_to_replace] = sim
         print top_words, top_words
 
-    for k in lda.zi_m_n:
+    img_feats = pk.load(open('pic_dict.pk', 'rb'))
+    for x in lda.zi_m_n:
         top_words = [''] * top_N
         top_words_sim = [.0] * top_N
-        for m in lda.docs:
-            sim = cosine_similarity([k, m])[0][1]
+        for t, vec in img_feats.iteritem():
+            sim = cosine_similarity([normalize(x), normalize(vec)])[0][1]
             if sim > min(top_words_sim):
                 index_to_replace = numpy.array(top_words_sim).argmin()
-                top_words[index_to_replace] = m  # should be replace with actual word
+                top_words[index_to_replace] = t
                 top_words_sim[index_to_replace] = sim
         print top_words, top_words
-
-
-    phi = lda.worddist()
 
 
 
