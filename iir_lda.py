@@ -9,6 +9,8 @@ import numpy
 import sys
 from operator import add
 import cPickle as pk
+
+import time
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -91,6 +93,7 @@ class LDA:
     def inference(self):
         """learning once iteration"""
         for m, doc in enumerate(self.docs):
+            refresh_output(['current doc', m])
             zw_n = self.zw_m_n[m]
             n_m_zw = self.n_m_zw[m]
             zi_n = self.zi_m_n[m]
@@ -152,6 +155,8 @@ def lda_learning(lda, iteration, voca=None):
     # pre_perp = lda.perplexity()
     # print ("initial perplexity=%f" % pre_perp)
     print 'topic training'
+    # start = time.time()
+
     for i in range(iteration):
         refresh_output(['training', i])
         print 'training', i
@@ -165,36 +170,44 @@ def lda_learning(lda, iteration, voca=None):
         #     else:
         #         pre_perp = perp
         #         output_word_topic_dist(lda, voca)
-    print ''
-    output_word_topic_dist(lda, voca)
+
+        if i == 0:
+            print 'init topic distribution'
+            output_word_topic_dist(lda)
+    # end = time.time()
+    # print 'training time:', end - start
+    # print ''
+    print 'final topic distribution'
+    output_word_topic_dist(lda)
 
 
-def output_word_topic_dist(lda, top_N=3):
-    # find the closest word using the distribution
+def output_word_topic_dist(lda, top_N=5):
+    numpy.save('word_topic.npy', lda.n_zw_t)
+    numpy.save('img_topic.npy', lda.n_zi_t)
+
     tag_name_w2v = pk.load(open('w2v_tags.pk', 'rb'))
-    for x in lda.zw_m_n:
+    for x in lda.n_zw_t:
         top_words = [''] * top_N
         top_words_sim = [.0] * top_N
-        for t, vec in tag_name_w2v.iteritem():
+        for t, vec in tag_name_w2v.iteritems():
             sim = cosine_similarity([normalize(x), normalize(vec)])[0][1]
             if sim > min(top_words_sim):
                 index_to_replace = numpy.array(top_words_sim).argmin()
                 top_words[index_to_replace] = t
                 top_words_sim[index_to_replace] = sim
-        print top_words, top_words
+        print top_words, top_words_sim
 
     img_feats = pk.load(open('pic_dict.pk', 'rb'))
-    for x in lda.zi_m_n:
+    for x in lda.n_zi_t:
         top_words = [''] * top_N
         top_words_sim = [.0] * top_N
-        for t, vec in img_feats.iteritem():
+        for t, vec in img_feats.iteritems():
             sim = cosine_similarity([normalize(x), normalize(vec)])[0][1]
             if sim > min(top_words_sim):
                 index_to_replace = numpy.array(top_words_sim).argmin()
                 top_words[index_to_replace] = t
                 top_words_sim[index_to_replace] = sim
-        print top_words, top_words
-
+        print top_words, top_words_sim
 
 
 def main():
@@ -203,10 +216,10 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option("-f", dest="filename", help="corpus filename", default='complete_document_one_2_one.pk')
     parser.add_option("-c", dest="corpus", help="using range of Brown corpus' files(start:end)")
-    parser.add_option("--alpha", dest="alpha", type="float", help="parameter alpha", default=0.5)
+    parser.add_option("--alpha", dest="alpha", type="float", help="parameter alpha", default=1)
     parser.add_option("--beta", dest="beta", type="float", help="parameter beta", default=0.5)
-    parser.add_option("-k", dest="K", type="int", help="number of topics", default=20)
-    parser.add_option("-i", dest="iteration", type="int", help="iteration count", default=10)
+    parser.add_option("-k", dest="K", type="int", help="number of topics", default=10)
+    parser.add_option("-i", dest="iteration", type="int", help="iteration count", default=50)
     parser.add_option("-s", dest="smartinit", action="store_true", help="smart initialize of parameters", default=False)
     parser.add_option("--stopwords", dest="stopwords", help="exclude stop words", action="store_true",
                       default=False)
@@ -219,7 +232,7 @@ def main():
     if options.seed != None:
         numpy.random.seed(options.seed)
 
-    lda = LDA(options.K, options.alpha, options.beta, corpus[:1000], [300, 1000], options.smartinit)
+    lda = LDA(options.K, options.alpha, options.beta, corpus, [300, 1000], options.smartinit)
 
     # import cProfile
     # cProfile.runctx('lda_learning(lda, options.iteration, voca)', globals(), locals(), 'lda.profile')
