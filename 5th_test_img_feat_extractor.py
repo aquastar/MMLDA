@@ -5,7 +5,7 @@ import tensorflow as tf
 import vgg16
 import utils
 
-file_list = tuple(glob.glob('./test*jpg'))
+file_list = tuple(glob.glob('./test/*jpg'))
 pic_dict = {}
 training_tuple = []
 training_size = 128
